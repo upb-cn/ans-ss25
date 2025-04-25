@@ -1,0 +1,12 @@
+> all hosts can ping each other, except for 'ext'.
+> all hosts can TCP/UDP eachother, except between 'ext' and 'ser'.
+> all hosts can ping their own gateways only.
+> learn incoming/outgoing MAC addresses. And send them as a flow rule.
+	> Modifying the table whenever a port in the switch changes. Listen to the event and send the modfications.
+> we make the assumption that all IP addresses are IPv4.
+> we make the assumption that all flow rules don't time out (TTL=0).
+> (bandwidth: 15 Mbps, delay: 10 ms) for the links.
+> Ask about the implementation of OSPF.
+=======================
+> Routing: forwards based on the IP headers (and TCP/UDP headers for firewall). 
+> Switching: forwards based on MAC addresses only. ""Learns"" the matchings.
