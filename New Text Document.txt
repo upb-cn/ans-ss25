@@ -1,0 +1,57 @@
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.cli import CLI
+from mininet.link import TCLink
+from mininet.log import setLogLevel
+
+class CustomRouterTopo(Topo):
+    def build(self):
+    
+	    h1 = self.addHost('h1', ip = '10.0.1.2/24', defaultRoute ='10.0.1.1' )
+	    h2 = self.addHost('h2', ip = '10.0.1.3/24', defaultRoute ='10.0.1.1' )
+	    ext = self.addHost('ext', ip = '192.168.1.123/24', defaultRoute ='192.168.1.1' )
+	    ser = self.addHost('ser', ip = '10.0.2.2/24', defaultRoute ='10.0.2.1' )
+	    r = self.addHost('r', ip =  '10.0.1.1/24')
+	    
+	    #switches
+	    
+	    s1 = self.addSwitch('s1')
+	    s2 = self.addSwitch('s2')
+	    s3 = self.addSwitch('s3')
+	    
+	    #links
+	    
+	    self.addLink(h1, s1)
+	    self.addLink(h2, s1)
+	    self.addLink(s1, r, intfname2 = 'r-eth0', params2 = {'ip': '10.0.1.1/24', 'mac': '00:00:00:00:01:01'})
+	    
+	    self.addLink(ser, s3)
+	    self.addLink(s3, r, intfname2 = 'r-etho1', params2 = {'ip': '10.0.2.1/24', 'mac': '00:00:00:00:01:02'})
+	    
+	    self.addLink(ext, s3)
+	    self.addLink(s3, r, intfname2 = 'r-etho2', params2 = {'ip': '192.168.1.1/24', 'mac': '00:00:00:00:01:03'})
+    
+    
+
+
+
+def run():
+    topo = CustomRouterTopo()
+    net = Mininet(topo=topo, link=TCLink, controller=None)
+    net.start()
+
+    r = net.get('r')
+
+    r.cmd('sysctl -w net.ipv4.ip_forward=1')
+    
+    net.get('h1').intf().setMAC('00:00:00:00:01:01')
+    net.get('h2').intf().setMAC('00:00:00:00:01:02')
+    net.get('ser').intf().setMAC('00:00:00:00:02:02')
+    net.get('ext').intf().setMAC('00:00:00:00:03:01')
+
+    CLI(net)
+    net.stop()
+
+if __name__ == '__main__':
+    setLogLevel('info')
+    run()
