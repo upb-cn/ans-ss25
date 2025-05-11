@@ -250,14 +250,14 @@ class LearningSwitch(app_manager.RyuApp):
 
 
                 # Decide output port based on dst_ip
-                if dst_ip.startswith("10.0.1."):
-                    out_port = 1
-                elif dst_ip.startswith("10.0.2."):
-                    out_port = 2
-                elif dst_ip.startswith("192.168.1."):
-                    out_port = 3
-                else:
-                    # Unknown destination, drop packet
+                out_port = None
+                for port, subnet_ip in self.port_to_own_ip.items():
+                    if dst_ip.startswith(subnet_ip.rsplit('.', 1)[0] + '.'):
+                        out_port = port
+                        break
+
+                if out_port is None:
+                    self.logger.info("Unknown destination IP: %s — dropping", dst_ip)
                     return
 
                 
