@@ -35,7 +35,7 @@ from mininet.node import Node, OVSKernelSwitch, RemoteController
 from mininet.topo import Topo
 from mininet.util import waitListening, custom
 
-from topo import Fattree
+import topo
 
 
 class FattreeNet(Topo):
@@ -48,7 +48,22 @@ class FattreeNet(Topo):
         Topo.__init__(self)
 
         # TODO: please complete the network generation logic here
+        for sw in ft_topo.switches:
+            if sw.dpid is not None:
+                self.addSwitch(sw.id, dpid=str(sw.dpid))
+            else:
+                self.addSwitch(sw.id)
+        
+        for srv in ft_topo.servers:
+            self.addHost(srv.id, ip = srv.ip)
 
+        for edge in ft_topo.edges:
+            n1 = edge.lnode
+            n2 = edge.rnode
+            self.addLink(n1.id, n2.id, bw=15, delay='5ms')
+        
+        print(f"Switch {sw.id} -> DPID: {sw.dpid}")
+        
 
 def make_mininet_instance(graph_topo):
 
